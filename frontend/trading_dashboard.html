@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TradeLedger — Real Stock Exchange</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#080C10; --bg2:#0D1117; --bg3:#161B22; --bg4:#21262D;
+  --border:#30363D; --border2:rgba(48,54,61,.6);
+  --teal:#00D4AA; --teal2:#00F5C4; --teal-dim:rgba(0,212,170,.12);
+  --gold:#F0B429; --gold-dim:rgba(240,180,41,.12);
+  --red:#FF4D4D; --red-dim:rgba(255,77,77,.12);
+  --green:#3FB950; --green-dim:rgba(63,185,80,.12);
+  --blue:#58A6FF; --blue-dim:rgba(88,166,255,.1);
+  --text:#E6EDF3; --text2:#8B949E; --text3:#484F58;
+  --font:'Space Grotesk',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ─── SCREENS ─────────────────────────────────────────────── */
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex}
+
+/* ─── LANDING ─────────────────────────────────────────────── */
+#screen-landing{
+  flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,#0A1628 0%,var(--bg) 70%);
+  position:relative;overflow:hidden;padding:2rem;
+}
+#screen-landing::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2321262D' stroke-width='1'%3E%3Cpath d='M0 30h60M30 0v60'/%3E%3C/g%3E%3C/svg%3E");
+  opacity:.4;
+}
+.landing-logo{
+  font-size:2.8rem;font-weight:700;letter-spacing:-1.5px;
+  background:linear-gradient(135deg,var(--teal2),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:.4rem;position:relative;z-index:1;text-align:center;
+}
+.landing-tag{color:var(--text2);font-size:.95rem;margin-bottom:.5rem;position:relative;z-index:1}
+.landing-notice{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:var(--gold-dim);border:1px solid rgba(240,180,41,.3);
+  color:var(--gold);border-radius:20px;padding:.3rem .9rem;font-size:.75rem;
+  font-family:var(--mono);margin-bottom:3rem;position:relative;z-index:1;
+}
+.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;max-width:820px;width:100%;position:relative;z-index:1}
+.role-card{
+  background:var(--bg3);border:1px solid var(--border);border-radius:16px;
+  padding:2rem 1.5rem;cursor:pointer;transition:all .2s;text-align:center;
+  position:relative;overflow:hidden;
+}
+.role-card::after{
+  content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;
+  background:radial-gradient(circle at 50% 0%,rgba(0,212,170,.08),transparent 70%);
+}
+.role-card:hover{border-color:var(--teal);transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,.5)}
+.role-card:hover::after{opacity:1}
+.rc-icon{font-size:2.5rem;margin-bottom:1rem}
+.rc-title{font-size:1.1rem;font-weight:600;margin-bottom:.5rem}
+.rc-desc{font-size:.8rem;color:var(--text2);line-height:1.6;margin-bottom:1.2rem}
+.rc-badge{
+  display:inline-block;border-radius:20px;padding:.2rem .8rem;
+  font-size:.7rem;font-family:var(--mono);
+}
+.rc-badge.teal{background:var(--teal-dim);color:var(--teal)}
+.rc-badge.gold{background:var(--gold-dim);color:var(--gold)}
+.rc-badge.red{background:var(--red-dim);color:var(--red)}
+
+/* ─── AUTH ────────────────────────────────────────────────── */
+#screen-auth{
+  align-items:center;justify-content:center;flex-direction:column;
+  background:radial-gradient(ellipse 60% 70% at 30% 50%,#0A1628 0%,var(--bg) 70%);
+  padding:2rem;
+}
+.auth-card{
+  width:100%;max-width:420px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
+}
+.auth-top{padding:1.5rem 1.8rem 0}
+.btn-back{
+  background:none;border:none;color:var(--text2);cursor:pointer;
+  font-size:.82rem;display:flex;align-items:center;gap:.3rem;
+  padding:0;margin-bottom:1rem;font-family:var(--font);
+}
+.btn-back:hover{color:var(--text)}
+.auth-role-pill{
+  display:inline-flex;align-items:center;gap:.4rem;
+  background:var(--teal-dim);border:1px solid rgba(0,212,170,.25);
+  color:var(--teal);border-radius:20px;padding:.25rem .8rem;
+  font-size:.72rem;font-family:var(--mono);margin-bottom:1rem;
+}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.auth-title{font-size:1.45rem;font-weight:700;margin-bottom:.2rem}
+.auth-sub{color:var(--text2);font-size:.82rem;margin-bottom:1.2rem}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border)}
+.auth-tab{
+  flex:1;padding:.7rem;text-align:center;cursor:pointer;font-size:.85rem;
+  font-weight:600;color:var(--text2);border-bottom:2px solid transparent;transition:all .18s;
+}
+.auth-tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.auth-tab.off{opacity:.3;pointer-events:none}
+.auth-form{padding:1.6rem 1.8rem}
+.fg{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.9rem}
+.fg label{font-size:.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.fg input{
+  background:var(--bg4);border:1px solid var(--border);color:var(--text);
+  border-radius:10px;padding:.7rem .9rem;font-size:.88rem;outline:none;
+  font-family:var(--mono);transition:border .18s;width:100%;
+}
+.fg input:focus{border-color:var(--teal)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  padding:.72rem 1.4rem;border-radius:10px;border:none;cursor:pointer;
+  font-family:var(--font);font-weight:600;font-size:.88rem;
+  transition:all .18s;width:100%;
+}
+.btn-teal{background:var(--teal);color:#000}
+.btn-teal:hover{background:var(--teal2);transform:translateY(-1px)}
+.btn-gold{background:var(--gold);color:#000}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+.btn-sm{width:auto;padding:.4rem .9rem;font-size:.78rem}
+.btn-red{background:var(--red-dim);border:1px solid rgba(255,77,77,.3);color:var(--red)}
+.alrt{padding:.7rem .9rem;border-radius:8px;font-size:.8rem;margin-bottom:.8rem;display:none}
+.alrt.ok{background:var(--green-dim);border:1px solid rgba(63,185,80,.3);color:var(--green);display:block}
+.alrt.err{background:var(--red-dim);border:1px solid rgba(255,77,77,.3);color:var(--red);display:block}
+.auth-note{font-size:.73rem;color:var(--text3);text-align:center;margin-top:.6rem}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ─── DASHBOARD ───────────────────────────────────────────── */
+#screen-dashboard{flex-direction:column}
+.topbar{
+  height:52px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;background:var(--bg2);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:50;flex-shrink:0;
+}
+.logo-sm{font-size:1.1rem;font-weight:700;letter-spacing:-.5px;
+  background:linear-gradient(135deg,var(--teal),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tb-right{display:flex;align-items:center;gap:.8rem}
+.user-chip{
+  display:flex;align-items:center;gap:.5rem;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:20px;padding:.3rem .9rem;font-size:.75rem;
+}
+.user-chip .nm{color:var(--teal);font-family:var(--mono)}
+.user-chip .rl{color:var(--text3);font-size:.65rem}
+.dash-shell{display:flex;flex:1;overflow:hidden;height:calc(100vh - 52px)}
+.sidebar{
+  width:200px;flex-shrink:0;background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:.8rem .6rem;overflow-y:auto;
+}
+.ns{font-size:.62rem;font-weight:600;letter-spacing:1.8px;color:var(--text3);
+  text-transform:uppercase;padding:.6rem .5rem .3rem;margin-top:.5rem}
+.ni{
+  display:flex;align-items:center;gap:.55rem;
+  padding:.5rem .7rem;border-radius:8px;cursor:pointer;
+  font-size:.82rem;color:var(--text2);transition:all .15s;border:1px solid transparent;
+}
+.ni:hover{background:var(--bg4);color:var(--text)}
+.ni.on{background:var(--teal-dim);color:var(--teal);border-color:rgba(0,212,170,.3)}
+.ni-ic{width:18px;text-align:center;font-size:.9rem}
+.main{flex:1;overflow-y:auto;padding:1.4rem 1.6rem}
+.panel{display:none}.panel.on{display:block}
+.pg-title{font-size:1.35rem;font-weight:700;margin-bottom:.2rem}
+.pg-sub{color:var(--text2);font-size:.8rem;margin-bottom:1.2rem}
+.pg-sub code{background:var(--bg4);padding:.1rem .4rem;border-radius:4px;font-family:var(--mono);font-size:.75rem;color:var(--teal)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:.9rem;margin-bottom:1.2rem}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem}
+.cl{font-size:.67rem;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:.3rem}
+.cv{font-size:1.45rem;font-weight:700;color:var(--teal);font-family:var(--mono)}
+.cv.gold{color:var(--gold)}.cv.green{color:var(--green)}.cv.red{color:var(--red)}.cv.sm{font-size:1rem}
+
+.tw{background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.2rem}
+.th{padding:.8rem 1.1rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.tt{font-size:.88rem;font-weight:600}
+.th-meta{font-size:.72rem;color:var(--text2);font-family:var(--mono)}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th{background:rgba(0,212,170,.06);color:var(--teal);font-weight:600;
+  text-transform:uppercase;letter-spacing:.6px;font-size:.67rem;
+  padding:.55rem 1rem;text-align:left}
+td{padding:.55rem 1rem;border-bottom:1px solid rgba(48,54,61,.4);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.mono{font-family:var(--mono)}
+.up{color:var(--green)}.down{color:var(--red)}
+
+.bdg{display:inline-block;padding:.12rem .55rem;border-radius:20px;font-size:.68rem;font-weight:600;font-family:var(--mono)}
+.bdg.buy{background:var(--green-dim);color:var(--green)}
+.bdg.sell{background:var(--red-dim);color:var(--red)}
+.bdg.comp{background:var(--teal-dim);color:var(--teal)}
+.bdg.pend{background:var(--gold-dim);color:var(--gold)}
+.bdg.part{background:var(--blue-dim);color:var(--blue)}
+.bdg.canc{background:rgba(72,79,88,.3);color:var(--text3)}
+.bdg.gold{background:var(--gold-dim);color:var(--gold)}
+
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.mt{margin-top:.9rem}
+.sel{
+  background:var(--bg4);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:.55rem .8rem;font-size:.84rem;outline:none;
+  font-family:var(--font);cursor:pointer;
+}
+.sel:focus{border-color:var(--teal)}
+.sel option{background:var(--bg3)}
+.tag{display:inline-block;background:var(--teal-dim);color:var(--teal);
+  border-radius:5px;padding:.08rem .45rem;font-size:.68rem;margin:.1rem;font-family:var(--mono)}
+
+/* ORDER BOOK */
+.ob-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem}
+.ob-side{background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.ob-hd{padding:.6rem .9rem;font-size:.78rem;font-weight:600;border-bottom:1px solid var(--border)}
+.ob-hd.buy-hd{color:var(--green)}
+.ob-hd.sell-hd{color:var(--red)}
+.ob-row{display:flex;justify-content:space-between;padding:.35rem .9rem;font-size:.75rem;font-family:var(--mono)}
+.ob-row:hover{background:rgba(255,255,255,.03)}
+
+/* CHART */
+.chart-box{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1.2rem}
+#priceChart{width:100%;height:180px}
+
+/* MATCHING ENGINE EXPLAINER */
+.me-box{background:linear-gradient(135deg,rgba(0,212,170,.06),rgba(88,166,255,.04));
+  border:1px solid rgba(0,212,170,.2);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem}
+.me-title{font-size:.82rem;font-weight:600;color:var(--teal);margin-bottom:.5rem}
+.me-row{display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--text2);margin-bottom:.25rem}
+.me-num{width:20px;height:20px;border-radius:50%;background:var(--teal-dim);color:var(--teal);
+  display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0}
+
+/* DEPOSIT MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:1.6rem;width:360px}
+.modal-title{font-size:1.1rem;font-weight:600;margin-bottom:1rem}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.empty{text-align:center;padding:2rem;color:var(--text3);font-size:.82rem}
+
+/* GAINERS / LOSERS */
+.gl-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem}
+</style>
+</head>
+<body>
+
+<!-- ═══ LANDING ════════════════════════════════════════════ -->
+<div id="screen-landing" class="screen active">
+  <div class="landing-logo">TradeLedger</div>
+  <div class="landing-tag">Real-time stock trading with order book matching</div>
+  <div class="landing-notice">⚡ Order Matching Engine Active — Limit Orders Only</div>
+  <div class="role-grid">
+    <div class="role-card" onclick="pickRole('trader')">
+      <div class="rc-icon">📊</div>
+      <div class="rc-title">Trader</div>
+      <div class="rc-desc">Place limit BUY/SELL orders, track portfolio P&amp;L, manage wallet, and view the live order book.</div>
+      <span class="rc-badge teal">Login + Sign Up</span>
+    </div>
+    <div class="role-card" onclick="pickRole('analyst')">
+      <div class="rc-icon">🔬</div>
+      <div class="rc-title">Analyst</div>
+      <div class="rc-desc">Read-only access to exchange stats, top-traded stocks, price history, and market analytics.</div>
+      <span class="rc-badge gold">Login + Sign Up</span>
+    </div>
+    <div class="role-card" onclick="pickRole('admin')">
+      <div class="rc-icon">🛡️</div>
+      <div class="rc-title">Admin</div>
+      <div class="rc-desc">Full system control — manage all users, adjust wallets, monitor all orders and trades system-wide.</div>
+      <span class="rc-badge red">Login Only</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AUTH ═══════════════════════════════════════════════ -->
+<div id="screen-auth" class="screen">
+  <div class="auth-card">
+    <div class="auth-top">
+      <button class="btn-back" onclick="goLanding()">← Back</button>
+      <div class="auth-role-pill"><div class="live-dot"></div><span id="authRoleTxt">trader_role</span></div>
+      <div class="auth-title" id="authTitle">Welcome back</div>
+      <div class="auth-sub" id="authSub">Sign in to your trader account</div>
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabL" onclick="switchTab('login')">Login</div>
+      <div class="auth-tab" id="tabS" onclick="switchTab('signup')">Sign Up</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="formLogin" class="auth-form">
+      <div id="loginErr" class="alrt"></div>
+      <div class="fg"><label>Email</label><input type="email" id="lEmail" placeholder="you@example.com"/></div>
+      <div class="fg"><label>Password</label><input type="password" id="lPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="btn btn-teal" id="loginBtn" onclick="doLogin()">Sign In</button>
+      <div class="auth-note" id="adminNote" style="display:none">Admin: admin@stockdb.com / Admin@1234</div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="formSignup" class="auth-form" style="display:none">
+      <div id="signupErr" class="alrt"></div>
+      <div class="fg" style="grid-column:1/-1"><label>Full Name</label><input type="text" id="sName" placeholder="John Doe"/></div>
+      <div class="two-col">
+        <div class="fg"><label>Email</label><input type="email" id="sEmail" placeholder="you@example.com"/></div>
+        <div class="fg"><label>Phone</label><input type="text" id="sPhone" placeholder="+1-555-0100"/></div>
+      </div>
+      <div class="fg"><label>Password</label><input type="password" id="sPwd" placeholder="••••••••"/></div>
+      <button class="btn btn-teal mt" id="signupBtn" onclick="doSignup()">Create Account</button>
+      <div class="auth-note">Traders get a ₹0 wallet — deposit funds after login to start trading.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ══════════════════════════════════════════ -->
+<div id="screen-dashboard" class="screen">
+  <div class="topbar">
+    <div class="logo-sm">TradeLedger</div>
+    <div class="tb-right">
+      <div class="user-chip">
+        <div class="live-dot"></div>
+        <span class="nm" id="topName">—</span>
+        <span class="rl" id="topRole">—</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="showModal('depositModal')" id="depositBtn">+ Deposit</button>
+      <button class="btn btn-red btn-sm" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="dash-shell">
+    <div class="sidebar" id="sidebar">
+      <div class="ns">Market</div>
+      <div class="ni on" onclick="go('market',this)"><span class="ni-ic">📈</span>Overview</div>
+      <div class="ni" onclick="go('prices',this)"><span class="ni-ic">🕯️</span>Price History</div>
+      <div class="ni" onclick="go('orderbook',this)"><span class="ni-ic">📖</span>Order Book</div>
+
+      <div class="ns" data-r="trader admin">Trading</div>
+      <div class="ni" data-r="trader admin" onclick="go('placeorder',this)"><span class="ni-ic">⚡</span>Place Order</div>
+      <div class="ni" data-r="trader admin" onclick="go('myorders',this)"><span class="ni-ic">📋</span>My Orders</div>
+      <div class="ni" data-r="trader admin" onclick="go('portfolio',this)"><span class="ni-ic">💼</span>Portfolio</div>
+      <div class="ni" data-r="trader admin" onclick="go('watchlist',this)"><span class="ni-ic">👁️</span>Watchlist</div>
+      <div class="ni" data-r="trader admin" onclick="go('wallet',this)"><span class="ni-ic">💳</span>Wallet</div>
+
+      <div class="ns" data-r="analyst admin">Analytics</div>
+      <div class="ni" data-r="analyst admin" onclick="go('gainerslosers',this)"><span class="ni-ic">📊</span>Gainers &amp; Losers</div>
+      <div class="ni" data-r="analyst admin" onclick="go('pnl',this)"><span class="ni-ic">💹</span>Trader P&amp;L</div>
+      <div class="ni" data-r="analyst admin" onclick="go('topstocks',this)"><span class="ni-ic">🏆</span>Top Stocks</div>
+      <div class="ni" data-r="analyst admin" onclick="go('exchanges',this)"><span class="ni-ic">🌐</span>Exchanges</div>
+
+      <div class="ns" data-r="admin">Admin</div>
+      <div class="ni" data-r="admin" onclick="go('addstock',this)"><span class="ni-ic">➕</span>Add Stock</div>
+      <div class="ni" data-r="admin" onclick="go('usersummary',this)"><span class="ni-ic">👤</span>User Summary</div>
+      <div class="ni" data-r="admin" onclick="go('allusers',this)"><span class="ni-ic">👥</span>All Users</div>
+      <div class="ni" data-r="admin" onclick="go('allorders',this)"><span class="ni-ic">📑</span>All Orders</div>
+    </div>
+
+    <div class="main">
+
+      <!-- MARKET OVERVIEW -->
+      <div class="panel on" id="p-market">
+        <div class="pg-title">Market Overview</div>
+        <div class="pg-sub">View: <code>stock_market_overview</code> — OHLCV + % change + available shares</div>
+        <div class="cards">
+          <div class="card"><div class="cl">Listed Stocks</div><div class="cv" id="mktCount">—</div></div>
+          <div class="card"><div class="cl">Exchanges</div><div class="cv gold">12</div></div>
+          <div class="card"><div class="cl">Gainers Today</div><div class="cv green" id="mGainers">—</div></div>
+          <div class="card"><div class="cl">Losers Today</div><div class="cv red" id="mLosers">—</div></div>
+        </div>
+        <div class="tw">
+          <div class="th"><span class="tt">Live Market Feed</span><span class="th-meta">stock_market_overview VIEW</span></div>
+          <table><thead><tr><th>Symbol</th><th>Name</th><th>Exchange</th><th>Price</th><th>High</th><th>Low</th><th>Change</th><th>Avail Shares</th></tr></thead>
+          <tbody id="mktBody"><tr><td colspan="8" class="empty"><div class="spin"></div></td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- PRICE HISTORY -->
+      <div class="panel" id="p-prices">
+        <div class="pg-title">Price History</div>
+        <div class="pg-sub">Function: <code>get_stock_price_history(stock_id, days)</code> — OHLCV candlestick data</div>
+        <div style="display:flex;gap:1rem;align-items:flex-end;margin-bottom:1rem;flex-wrap:wrap">
+          <div class="fg"><label>Stock</label>
+            <!-- FIX: Removed AAPL (stock_id=1). Default is now MSFT (stock_id=2). -->
+            <select class="sel" id="phStock" onchange="loadPrices()">
+              <option value="2">MSFT</option>
+              <option value="3">AMZN</option>
+              <option value="4">GOOGL</option>
+              <option value="5">TSLA</option>
+              <option value="6">META</option>
+              <option value="7">NVDA</option>
+              <option value="8">BRK.B</option>
+              <option value="9">JPM</option>
+              <option value="10">V</option>
+              <option value="11">JNJ</option>
+              <option value="12">WMT</option>
+              <option value="13">PG</option>
+              <option value="14">MA</option>
+              <option value="15">XOM</option>
+              <option value="16">UNH</option>
+              <option value="17">HD</option>
+              <option value="18">CVX</option>
+              <option value="19">ABBV</option>
+              <option value="20">PFE</option>
+              <option value="21">KO</option>
+              <option value="22">PEP</option>
+              <option value="23">NFLX</option>
+              <option value="24">ADBE</option>
+              <option value="25">CRM</option>
+              <option value="26">INTC</option>
+              <option value="27">AMD</option>
+              <option value="28">QCOM</option>
+              <option value="29">TXN</option>
+              <option value="30">AVGO</option>
+              <option value="31">ASML</option>
+              <option value="32">SAP</option>
+              <option value="33">SIE</option>
+              <option value="34">MC</option>
+              <option value="35">TTE</option>
+              <option value="36">ULVR</option>
+              <option value="37">HSBC</option>
+              <option value="38">BP</option>
+              <option value="39">AZN</option>
+              <option value="40">SHEL</option>
+              <option value="41">RY</option>
+              <option value="42">TD</option>
+              <option value="43">SHOP</option>
+              <option value="44">BHP</option>
+              <option value="45">CBA</option>
+              <option value="46">RELIANCE</option>
+              <option value="47">HDFCBANK</option>
+              <option value="48">INFY</option>
+              <option value="49">TCS</option>
+              <option value="50">WIPRO</option>
+              <option value="51">HCLTECH</option>
+              <option value="52">D05</option>
+              <option value="53">C6L</option>
+              <option value="54">0700</option>
+              <option value="55">9988</option>
+              <option value="56">6758</option>
+              <option value="57">7203</option>
+              <option value="58">005930</option>
+              <option value="59">CRWD</option>
+              <option value="60">NET</option>
+            </select>
+          </div>
+          <div class="fg"><label>Period</label>
+            <select class="sel" id="phDays" onchange="loadPrices()" style="width:90px">
+              <option value="30">30d</option><option value="60">60d</option><option value="90">90d</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-box"><canvas id="priceChart"></canvas></div>
+        <div class="tw">
+          <div class="th"><span class="tt">OHLCV Data</span></div>
+          <table><thead><tr><th>Date</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Volume</th><th>Change</th></tr></thead>
+          <tbody id="priceBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ORDER BOOK -->
+      <div class="panel" id="p-orderbook">
+        <div class="pg-title">Live Order Book</div>
+        <div class="pg-sub">View: <code>open_order_book</code> — pending limit orders waiting to be matched</div>
+        <div style="display:flex;gap:1rem;align-items:flex-end;margin-bottom:1rem">
+          <div class="fg"><label>Stock</label>
+            <!-- FIX: Removed AAPL -->
+            <select class="sel" id="obSymbol" onchange="loadOrderBook()">
+              <option>MSFT</option>
+              <option>NVDA</option>
+              <option>TSLA</option>
+              <option>META</option>
+              <option>AMZN</option>
+              <option>AMD</option>
+              <option>GOOGL</option>
+              <option>BRK.B</option>
+              <option>JPM</option>
+              <option>V</option>
+              <option>JNJ</option>
+              <option>WMT</option>
+              <option>PG</option>
+              <option>MA</option>
+              <option>XOM</option>
+              <option>UNH</option>
+              <option>HD</option>
+              <option>CVX</option>
+              <option>ABBV</option>
+              <option>PFE</option>
+              <option>KO</option>
+              <option>PEP</option>
+              <option>NFLX</option>
+              <option>ADBE</option>
+              <option>CRM</option>
+              <option>INTC</option>
+              <option>QCOM</option>
+              <option>TXN</option>
+              <option>AVGO</option>
+              <option>ASML</option>
+              <option>SAP</option>
+              <option>SIE</option>
+              <option>MC</option>
+              <option>TTE</option>
+              <option>ULVR</option>
+              <option>HSBC</option>
+              <option>BP</option>
+              <option>AZN</option>
+              <option>SHEL</option>
+              <option>RY</option>
+              <option>TD</option>
+              <option>SHOP</option>
+              <option>BHP</option>
+              <option>CBA</option>
+              <option>RELIANCE</option>
+              <option>HDFCBANK</option>
+              <option>INFY</option>
+              <option>TCS</option>
+              <option>WIPRO</option>
+              <option>HCLTECH</option>
+              <option>D05</option>
+              <option>C6L</option>
+              <option>0700</option>
+              <option>9988</option>
+              <option>6758</option>
+              <option>7203</option>
+              <option>005930</option>
+              <option>CRWD</option>
+              <option>NET</option>
+            </select>
+          </div>
+        </div>
+        <div class="ob-wrap">
+          <div class="ob-side">
+            <div class="ob-hd buy-hd">▲ BUY Orders (Bids)</div>
+            <div id="obBuy"></div>
+          </div>
+          <div class="ob-side">
+            <div class="ob-hd sell-hd">▼ SELL Orders (Asks)</div>
+            <div id="obSell"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLACE ORDER -->
+      <div class="panel" id="p-placeorder">
+        <div class="pg-title">Place Limit Order</div>
+        <div class="pg-sub">Function: <code>place_order(user_id, stock_id, type, qty, price)</code> — runs matching engine internally</div>
+        <div class="tw" style="max-width:500px">
+          <div class="th"><span class="tt">New Order</span><span class="th-meta">Limit Orders Only</span></div>
+          <div style="padding:1.3rem">
+            <div id="orderAlrt" class="alrt"></div>
+            <div class="fgrid">
+              <div class="fg">
+                <label>Stock</label>
+                <!-- FIX: Removed AAPL. List populated dynamically from /api/market/stocks -->
+                <select class="sel" id="poStock"></select>
+              </div>
+              <div class="fg">
+                <label>Order Type</label>
+                <select class="sel" id="poType">
+                  <option value="BUY">BUY</option><option value="SELL">SELL</option>
+                </select>
+              </div>
+              <div class="fg"><label>Quantity</label><input type="number" id="poQty" value="10" min="1" oninput="calcTotal()" style="background:var(--bg4);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.6rem .8rem;font-size:.85rem;outline:none;font-family:var(--mono);width:100%"/></div>
+              <div class="fg"><label>Limit Price</label><input type="number" id="poPrice" value="180.00" step="0.01" oninput="calcTotal()" style="background:var(--bg4);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.6rem .8rem;font-size:.85rem;outline:none;font-family:var(--mono);width:100%"/></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:1rem">
+              <div style="font-size:.78rem;color:var(--text2)">Total: <span id="poTotal" style="color:var(--gold);font-family:var(--mono);font-size:.95rem">$1,800.00</span></div>
+              <button class="btn btn-teal btn-sm" onclick="submitOrder()">⚡ Submit Order</button>
+            </div>
+          </div>
+        </div>
+        <div class="me-box" style="max-width:500px">
+          <div class="me-title">Triggers that fire on order submission</div>
+          <span class="tag">place_order()</span> validates balance &amp; available_shares<br>
+          <span class="tag" style="margin-top:.4rem">trg_wallet_balance_check</span> blocks negative balances<br>
+          <span class="tag">trg_stock_shares_check</span> blocks overshooting company supply<br>
+          <span class="tag">trg_trade_updates_price</span> updates daily_prices on each match<br>
+          <span class="tag">trg_order_status_cancel</span> auto-refunds on cancellation
+        </div>
+      </div>
+
+      <!-- MY ORDERS -->
+      <div class="panel" id="p-myorders">
+        <div class="pg-title">My Orders</div>
+        <div class="pg-sub">View: <code>order_summary_view</code> — index: <code>idx_orders_user_id</code></div>
+        <div class="tw">
+          <div class="th"><span class="tt">Order History</span></div>
+          <table><thead><tr><th>ID</th><th>Symbol</th><th>Type</th><th>Qty</th><th>Filled</th><th>Remaining</th><th>Price</th><th>Value</th><th>Status</th><th>Time</th><th></th></tr></thead>
+          <tbody id="myOrdersBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- PORTFOLIO -->
+      <!-- FIX: Added Unrealised P&L and P&L% columns (sourced from user_portfolio_view) -->
+      <div class="panel" id="p-portfolio">
+        <div class="pg-title">My Portfolio</div>
+        <div class="pg-sub">View: <code>user_portfolio_view</code> — current market value + unrealised P&amp;L</div>
+        <div class="cards" id="portCards"></div>
+        <div class="tw">
+          <div class="th"><span class="tt">Holdings</span></div>
+          <table><thead><tr><th>Symbol</th><th>Name</th><th>Qty</th><th>Avg Buy Price</th><th>Current Price</th><th>Market Value</th><th>Unrealised P&amp;L</th><th>P&amp;L %</th></tr></thead>
+          <tbody id="portBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- WATCHLIST -->
+      <div class="panel" id="p-watchlist">
+        <div class="pg-title">Watchlist</div>
+        <div class="pg-sub">View: <code>watchlist_with_prices</code></div>
+        <div style="display:flex;gap:.8rem;align-items:flex-end;margin-bottom:1rem">
+          <div class="fg"><label>Add Stock</label>
+            <!-- FIX: Removed AAPL. List populated dynamically. -->
+            <select class="sel" id="wlAddStock"></select>
+          </div>
+          <button class="btn btn-teal btn-sm" onclick="addToWatchlist()">+ Add</button>
+        </div>
+        <div id="wlAlrt" class="alrt"></div>
+        <div class="tw">
+          <div class="th"><span class="tt">Watched Stocks</span></div>
+          <table><thead><tr><th>Symbol</th><th>Name</th><th>Added</th><th>Latest Price</th><th></th></tr></thead>
+          <tbody id="wlBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- WALLET -->
+      <div class="panel" id="p-wallet">
+        <div class="pg-title">Wallet &amp; Transactions</div>
+        <div class="pg-sub">View: <code>wallet_transaction_view</code> — index: <code>idx_transaction_wallet_id</code></div>
+        <div class="cards" id="walCards"></div>
+        <div class="tw">
+          <div class="th"><span class="tt">Transaction History</span></div>
+          <table><thead><tr><th>TX ID</th><th>Amount</th><th>Stock</th><th>Type</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody id="walBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- GAINERS & LOSERS (NEW) -->
+      <div class="panel" id="p-gainerslosers">
+        <div class="pg-title">Gainers &amp; Losers</div>
+        <div class="pg-sub">API: <code>/api/analyst/gainers-losers</code> — real price diff: latest vs prev close</div>
+        <div style="display:flex;gap:1rem;align-items:flex-end;margin-bottom:1rem">
+          <div class="fg"><label>Show Top N</label>
+            <select class="sel" id="glN" onchange="loadGainersLosers()" style="width:80px">
+              <option value="5">5</option><option value="10">10</option><option value="20">20</option>
+            </select>
+          </div>
+        </div>
+        <div class="gl-grid">
+          <div class="tw">
+            <div class="th"><span class="tt" style="color:var(--green)">▲ Top Gainers</span></div>
+            <table><thead><tr><th>Symbol</th><th>Name</th><th>Price</th><th>Change</th><th>% Change</th></tr></thead>
+            <tbody id="glGainers"></tbody></table>
+          </div>
+          <div class="tw">
+            <div class="th"><span class="tt" style="color:var(--red)">▼ Top Losers</span></div>
+            <table><thead><tr><th>Symbol</th><th>Name</th><th>Price</th><th>Change</th><th>% Change</th></tr></thead>
+            <tbody id="glLosers"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRADER P&L (NEW) -->
+      <div class="panel" id="p-pnl">
+        <div class="pg-title">Trader P&amp;L Report</div>
+        <div class="pg-sub">API: <code>/api/analyst/pnl</code> — unrealised + realised P&amp;L per trader</div>
+        <div class="tw">
+          <div class="th"><span class="tt">Per-Trader Profit &amp; Loss</span><span class="th-meta">Live from portfolio + trades</span></div>
+          <table><thead><tr><th>Trader</th><th>Portfolio Value</th><th>Unrealised P&amp;L</th><th>Realised P&amp;L</th><th>Total Trades</th></tr></thead>
+          <tbody id="pnlBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- TOP STOCKS -->
+      <div class="panel" id="p-topstocks">
+        <div class="pg-title">Top Traded Stocks</div>
+        <div class="pg-sub">Function: <code>get_top_traded_stocks(n)</code> — by trade volume USD</div>
+        <div style="display:flex;gap:1rem;margin-bottom:1rem">
+          <div class="fg"><label>Show Top</label>
+            <select class="sel" id="topN" onchange="loadTop()" style="width:90px">
+              <option value="5">5</option><option value="10" selected>10</option><option value="20">20</option>
+            </select>
+          </div>
+        </div>
+        <div class="tw">
+          <div class="th"><span class="tt">Ranking by Volume</span></div>
+          <table><thead><tr><th>#</th><th>Symbol</th><th>Name</th><th>Trades</th><th>Shares Traded</th><th>Volume USD</th></tr></thead>
+          <tbody id="topBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- EXCHANGES -->
+      <div class="panel" id="p-exchanges">
+        <div class="pg-title">Exchange Statistics</div>
+        <div class="pg-sub">Function: <code>get_exchange_stats()</code></div>
+        <div class="tw">
+          <div class="th"><span class="tt">Per-Exchange Performance</span></div>
+          <table><thead><tr><th>Exchange</th><th>Country</th><th>Stocks</th><th>Trades</th><th>Total Traded</th></tr></thead>
+          <tbody id="exchBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ADD STOCK (Admin) -->
+      <div class="panel" id="p-addstock">
+        <div class="pg-title">Add New Stock</div>
+        <div class="pg-sub">API: <code>POST /api/admin/add-stock</code> — auto-suggests shares based on price tier &amp; exchange</div>
+        <div class="tw" style="max-width:520px">
+          <div class="th"><span class="tt">New Stock Details</span><span class="th-meta">Admin Only</span></div>
+          <div style="padding:1.3rem">
+            <div id="addStockAlrt" class="alrt"></div>
+            <div class="fgrid">
+              <div class="fg"><label>Symbol</label><input type="text" id="asSymbol" placeholder="e.g. GOOGL" style="background:var(--bg4);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.6rem .8rem;font-size:.85rem;outline:none;font-family:var(--mono);width:100%"/></div>
+              <div class="fg"><label>Stock Name</label><input type="text" id="asName" placeholder="e.g. Alphabet Inc." style="background:var(--bg4);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.6rem .8rem;font-size:.85rem;outline:none;font-family:var(--font);width:100%"/></div>
+              <div class="fg"><label>Exchange ID</label><input type="number" id="asExchange" value="1" min="1" style="background:var(--bg4);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.6rem .8rem;font-size:.85rem;outline:none;font-family:var(--mono);width:100%"/></div>
+              <div class="fg"><label>Initial Price ($)</label><input type="number" id="asPrice" value="150.00" step="0.01" min="0.01" style="background:var(--bg4);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.6rem .8rem;font-size:.85rem;outline:none;font-family:var(--mono);width:100%"/></div>
+              <div class="fg" style="grid-column:1/-1"><label>Total Shares (leave blank to auto-suggest)</label><input type="number" id="asShares" placeholder="Auto-calculated if blank" style="background:var(--bg4);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.6rem .8rem;font-size:.85rem;outline:none;font-family:var(--mono);width:100%"/></div>
+            </div>
+            <div style="margin-top:1rem">
+              <button class="btn btn-teal btn-sm" onclick="doAddStock()">➕ Add Stock</button>
+            </div>
+            <div id="addStockResult" style="margin-top:1rem;display:none" class="me-box">
+              <div class="me-title">✓ Stock Added Successfully</div>
+              <div id="addStockResultBody" style="font-size:.78rem;color:var(--text2)"></div>
+            </div>
+          </div>
+        </div>
+        <div class="me-box" style="max-width:520px;margin-top:0">
+          <div class="me-title">📐 Auto-Share Suggestion Logic</div>
+          <div class="me-row"><div class="me-num">1</div>Price ≥ $500 → 500M base shares (mega-cap territory)</div>
+          <div class="me-row"><div class="me-num">2</div>Price ≥ $100 → 1B base shares (large-cap)</div>
+          <div class="me-row"><div class="me-num">3</div>Price ≥ $20 → 5B base shares (mid-cap)</div>
+          <div class="me-row"><div class="me-num">4</div>Price &lt; $20 → 10B base shares (small-cap)</div>
+          <div class="me-row"><div class="me-num">5</div>Scaled by exchange country: US ×1.0 · EU ×0.6 · Asia ×0.8 · Other ×0.5</div>
+        </div>
+      </div>
+
+      <!-- USER SUMMARY -->
+      <div class="panel" id="p-usersummary">
+        <div class="pg-title">User Summary</div>
+        <div class="pg-sub">Function: <code>get_user_summary(user_id)</code> — admin only</div>
+        <div class="tw" style="max-width:420px;margin-bottom:1.2rem">
+          <div class="th"><span class="tt">Look Up User</span></div>
+          <div style="padding:1rem;display:flex;gap:.8rem;align-items:flex-end">
+            <div class="fg"><label>User ID</label><input type="number" id="sumUid" value="15" style="background:var(--bg4);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.6rem .8rem;font-size:.85rem;outline:none;font-family:var(--mono);width:90px"/></div>
+            <button class="btn btn-teal btn-sm" onclick="loadSum()">Fetch</button>
+          </div>
+        </div>
+        <div class="cards" id="sumCards"></div>
+      </div>
+
+      <!-- ALL USERS -->
+      <div class="panel" id="p-allusers">
+        <div class="pg-title">All Users</div>
+        <div class="pg-sub">Admin view — full user registry</div>
+        <div class="tw">
+          <div class="th"><span class="tt">Users</span></div>
+          <table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Phone</th></tr></thead>
+          <tbody id="allUsersBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ALL ORDERS -->
+      <div class="panel" id="p-allorders">
+        <div class="pg-title">All Orders</div>
+        <div class="pg-sub">Admin — <code>order_summary_view</code> full view</div>
+        <div class="tw">
+          <div class="th"><span class="tt">System Orders</span></div>
+          <table><thead><tr><th>ID</th><th>User</th><th>Symbol</th><th>Type</th><th>Qty</th><th>Filled</th><th>Price</th><th>Status</th><th>Time</th></tr></thead>
+          <tbody id="allOrdersBody"></tbody></table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- DEPOSIT MODAL -->
+<div class="modal-bg" id="depositModal">
+  <div class="modal">
+    <div class="modal-title">Deposit Funds</div>
+    <div id="depAlrt" class="alrt"></div>
+    <div class="fg"><label>Amount (USD)</label><input type="number" id="depAmt" value="10000" min="1"/></div>
+    <div style="display:flex;gap:.8rem;margin-top:1rem">
+      <button class="btn btn-teal" onclick="doDeposit()">Deposit</button>
+      <button class="btn btn-ghost" onclick="closeModal('depositModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API='http://localhost:5000/api';
+let tok=localStorage.getItem('tl_tok')||null;
+let me=JSON.parse(localStorage.getItem('tl_me')||'null');
+let selRole=null;
+
+// Auto-login
+window.addEventListener('load',()=>{ if(tok&&me) enterDash(me); });
+
+// ── UTILS ────────────────────────────────────────────────────
+const $=id=>document.getElementById(id);
+const fmt=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN=n=>Number(n).toLocaleString();
+const fmtD=s=>s?String(s).slice(0,10):'—';
+const sc=(id,type,msg)=>{const e=$(id);if(e){e.className='alrt '+(type==='ok'?'ok':'err');e.textContent=msg}};
+const bdg=(cls,lbl)=>`<span class="bdg ${cls}">${lbl}</span>`;
+const pnl=(n)=>{if(n===null||n===undefined||n==='')return'<span style="color:var(--text3)">—</span>';const c=parseFloat(n);return `<span class="${c>=0?'up':'down'}">${c>=0?'+':''}${fmt(c)}</span>`};
+const pnlPct=(n)=>{if(n===null||n===undefined||n==='')return'<span style="color:var(--text3)">—</span>';const c=parseFloat(n);return `<span class="${c>=0?'up':'down'}">${c>=0?'+':''}${c.toFixed(2)}%</span>`};
+
+async function api(path,opts={}){
+  const h={'Content-Type':'application/json'};
+  if(tok) h['Authorization']='Bearer '+tok;
+  const r=await fetch(API+path,{...opts,headers:h});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(d.error||'Request failed');
+  return d;
+}
+
+// ── SCREENS ──────────────────────────────────────────────────
+const showScr=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')};
+
+function pickRole(role){
+  selRole=role;
+  $('authRoleTxt').textContent=role+'_role';
+  $('tabS').classList.toggle('off',role==='admin');
+  $('adminNote').style.display=role==='admin'?'block':'none';
+  if(role==='admin') switchTab('login');
+  $('authTitle').textContent=role==='admin'?'Admin Access':'Welcome back';
+  $('authSub').textContent=`Sign in to your ${role} account`;
+  showScr('screen-auth');
+}
+function goLanding(){showScr('screen-landing')}
+function switchTab(t){
+  $('formLogin').style.display=t==='login'?'block':'none';
+  $('formSignup').style.display=t==='signup'?'block':'none';
+  $('tabL').classList.toggle('active',t==='login');
+  $('tabS').classList.toggle('active',t==='signup');
+}
+
+// ── AUTH ─────────────────────────────────────────────────────
+async function doLogin(){
+  const email=$('lEmail').value.trim(), pwd=$('lPwd').value, btn=$('loginBtn');
+  if(!email||!pwd){sc('loginErr','err','Email and password required.');return}
+  btn.innerHTML='<div class="spin"></div>'; btn.disabled=true;
+  try{
+    const d=await api('/auth/login',{method:'POST',body:JSON.stringify({email,password:pwd,role:selRole})});
+    tok=d.token; me=d.user;
+    localStorage.setItem('tl_tok',tok); localStorage.setItem('tl_me',JSON.stringify(me));
+    enterDash(me);
+  }catch(e){sc('loginErr','err',e.message)}
+  finally{btn.innerHTML='Sign In';btn.disabled=false}
+}
+
+async function doSignup(){
+  const name=$('sName').value.trim(),email=$('sEmail').value.trim(),
+        phone=$('sPhone').value.trim(),pwd=$('sPwd').value,btn=$('signupBtn');
+  if(!name||!email||!pwd){sc('signupErr','err','Name, email & password required.');return}
+  btn.innerHTML='<div class="spin"></div>'; btn.disabled=true;
+  try{
+    const d=await api('/auth/signup',{method:'POST',body:JSON.stringify({name,email,phone,password:pwd,role:selRole})});
+    tok=d.token; me=d.user;
+    localStorage.setItem('tl_tok',tok); localStorage.setItem('tl_me',JSON.stringify(me));
+    enterDash(me);
+  }catch(e){sc('signupErr','err',e.message)}
+  finally{btn.innerHTML='Create Account';btn.disabled=false}
+}
+
+// FIX: Logout now clears ALL input fields and alert messages, removes
+//      cached token/user, and returns to landing — no stale data left.
+function doLogout(){
+  tok=null; me=null;
+  localStorage.removeItem('tl_tok');
+  localStorage.removeItem('tl_me');
+  // Clear all text/password/number inputs
+  document.querySelectorAll('input[type=text],input[type=email],input[type=password],input[type=number]').forEach(el=>{
+    // Preserve placeholder-only fields that have a meaningful default (e.g. qty/price)
+    const keepDefaults=['depAmt','sumUid'];
+    if(!keepDefaults.includes(el.id)) el.value='';
+  });
+  // Clear all alert boxes
+  document.querySelectorAll('.alrt').forEach(el=>{el.className='alrt';el.textContent=''});
+  // Reset auth tabs to login
+  switchTab('login');
+  showScr('screen-landing');
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────
+function enterDash(user){
+  $('topName').textContent=user.name;
+  $('topRole').textContent=user.role+'_role';
+  $('depositBtn').style.display=user.role==='analyst'?'none':'';
+  document.querySelectorAll('[data-r]').forEach(el=>{
+    const roles=el.getAttribute('data-r').split(' ');
+    el.style.display=roles.includes(user.role)?'':'none';
+  });
+  showScr('screen-dashboard');
+  // Load stock list for dropdowns (Place Order, Watchlist) after login
+  loadStockDropdowns();
+  go('market',document.querySelector('.ni'));
+}
+
+function go(name,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  const p=$('p-'+name); if(p) p.classList.add('on');
+  if(el) el.classList.add('on');
+  load(name);
+}
+
+const loaders={
+  market:loadMarket, prices:loadPrices, orderbook:loadOrderBook,
+  myorders:loadMyOrders, portfolio:loadPortfolio,
+  watchlist:loadWatchlist, wallet:loadWallet,
+  gainerslosers:loadGainersLosers, pnl:loadPnl,
+  topstocks:loadTop, exchanges:loadExchanges,
+  allusers:loadAllUsers, allorders:loadAllOrders,
+};
+function load(n){if(loaders[n]) loaders[n]()}
+
+// ── STOCK DROPDOWNS (dynamic, no AAPL) ───────────────────────
+// FIX: All stock dropdowns (Place Order, Watchlist) are populated
+//      dynamically from /api/market/stocks which already excludes AAPL.
+async function loadStockDropdowns(){
+  try{
+    const d=await api('/market/stocks');
+    const stocks=d.data||[];
+    const opts=stocks.map(s=>`<option value="${s.stock_id}">${s.symbol} — ${s.stock_name}</option>`).join('');
+    const poStock=$('poStock'); if(poStock) poStock.innerHTML=opts;
+    const wlAddStock=$('wlAddStock'); if(wlAddStock) wlAddStock.innerHTML=opts;
+    calcTotal();
+  }catch(e){
+    // If backend not available, add a note
+    const poStock=$('poStock');
+    if(poStock&&poStock.children.length===0) poStock.innerHTML='<option value="">Backend offline</option>';
+  }
+}
+
+// ── MARKET ───────────────────────────────────────────────────
+async function loadMarket(){
+  try{
+    const d=await api('/market/overview');
+    const rows=d.data||[];
+    let gain=0,lose=0;
+    const body=$('mktBody');
+    rows.forEach(s=>{
+      if(s.pct_change===null||s.pct_change===undefined) return;
+      const ch=parseFloat(s.pct_change);
+      if(ch>0)gain++; else if(ch<0)lose++;
+    });
+    $('mktCount').textContent=rows.length;
+    body.innerHTML=rows.map(s=>{
+      const ch=s.pct_change!==null&&s.pct_change!==undefined?parseFloat(s.pct_change):null;
+      const cls=ch===null?'':ch>=0?'up':'down', ar=ch===null?'—':ch>=0?'▲':'▼';
+      const avail=s.available_shares?Number(s.available_shares).toLocaleString():'—';
+      return `<tr style="cursor:pointer" onclick="openStockDetail(${s.stock_id}, '${s.symbol}')">
+        <td><strong class="mono" style="color:var(--teal)">${s.symbol}</strong></td>
+        <td>${s.stock_name}</td><td>${s.exchange_name}</td>
+        <td class="mono">${fmt(s.latest_price||0)}</td>
+        <td class="mono up">${fmt(s.high_price||0)}</td>
+        <td class="mono down">${fmt(s.low_price||0)}</td>
+        <td class="${cls}">${ch===null?'—':ar+' '+Math.abs(ch)+'%'}</td>
+        <td class="mono" style="color:var(--text2)">${avail}</td>
+      </tr>`;
+    }).join('');
+    $('mGainers').textContent=gain;
+    $('mLosers').textContent=lose;
+  }catch(e){$('mktBody').innerHTML=`<tr><td colspan="8" class="empty" style="color:var(--red)">⚠ Backend not connected — run app.py</td></tr>`}
+}
+
+// ── PRICE HISTORY ────────────────────────────────────────────
+async function loadPrices(){
+  const sid=$('phStock').value, days=$('phDays').value;
+  try{
+    const d=await api(`/market/price-history?stock_id=${sid}&days=${days}`);
+    const rows=d.data||[];
+    $('priceBody').innerHTML=rows.slice().reverse().slice(0,25).map(r=>{
+      const ch=parseFloat(r.daily_change||0);
+      return `<tr>
+        <td style="color:var(--text2)">${fmtD(r.price_date)}</td>
+        <td class="mono">${fmt(r.open_price)}</td>
+        <td class="mono up">${fmt(r.high_price)}</td>
+        <td class="mono down">${fmt(r.low_price)}</td>
+        <td class="mono">${fmt(r.close_price)}</td>
+        <td class="mono" style="color:var(--text2)">${fmtN(r.volume||0)}</td>
+        <td class="${ch>=0?'up':'down'}">${ch>=0?'▲':'▼'} ${Math.abs(ch).toFixed(2)}</td>
+      </tr>`;
+    }).join('');
+    drawChart(rows.map(r=>parseFloat(r.close_price)));
+  }catch(e){ drawFallbackChart(); }
+}
+
+function drawChart(prices){
+  const canvas=$('priceChart'); if(!prices||prices.length<2)return;
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=canvas.offsetWidth*dpr; canvas.height=180*dpr;
+  canvas.style.height='180px'; ctx.scale(dpr,dpr);
+  const W=canvas.offsetWidth,H=180;
+  ctx.clearRect(0,0,W,H);
+  const mn=Math.min(...prices)*.994, mx=Math.max(...prices)*1.006;
+  const sy=v=>H-20-((v-mn)/(mx-mn))*(H-35);
+  const sx=i=>45+(i/(prices.length-1))*(W-60);
+  ctx.strokeStyle='rgba(48,54,61,.5)';ctx.lineWidth=1;
+  [0,.25,.5,.75,1].forEach(t=>{
+    const y=15+t*(H-30),val=mx-t*(mx-mn);
+    ctx.beginPath();ctx.moveTo(45,y);ctx.lineTo(W-15,y);ctx.stroke();
+    ctx.fillStyle='rgba(139,148,158,.6)';ctx.font=`9px JetBrains Mono,monospace`;
+    ctx.fillText('$'+val.toFixed(0),2,y+4);
+  });
+  const grad=ctx.createLinearGradient(0,10,0,H);
+  grad.addColorStop(0,'rgba(0,212,170,.3)');grad.addColorStop(1,'rgba(0,212,170,0)');
+  ctx.beginPath();ctx.moveTo(sx(0),H);
+  prices.forEach((p,i)=>ctx.lineTo(sx(i),sy(p)));
+  ctx.lineTo(sx(prices.length-1),H);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();ctx.strokeStyle='#00D4AA';ctx.lineWidth=2;
+  prices.forEach((p,i)=>i===0?ctx.moveTo(sx(i),sy(p)):ctx.lineTo(sx(i),sy(p)));
+  ctx.stroke();
+}
+function drawFallbackChart(){
+  const prices=Array.from({length:30},(_,i)=>180+Math.sin(i*.4)*15+Math.random()*8);
+  drawChart(prices);
+}
+
+// ── ORDER BOOK ───────────────────────────────────────────────
+async function loadOrderBook(){
+  const sym=$('obSymbol').value;
+  try{
+    const d=await api(`/market/order-book?symbol=${sym}`);
+    const rows=d.data||[];
+    const buys=rows.filter(r=>r.order_type==='BUY').slice(0,12);
+    const sells=rows.filter(r=>r.order_type==='SELL').slice(0,12);
+    $('obBuy').innerHTML=buys.length?buys.map(r=>`
+      <div class="ob-row">
+        <span class="up">${fmt(r.price)}</span>
+        <span>${fmtN(r.open_quantity)}</span>
+        <span style="color:var(--text3)">${r.num_orders} orders</span>
+      </div>`).join(''):'<div class="empty">No buy orders</div>';
+    $('obSell').innerHTML=sells.length?sells.map(r=>`
+      <div class="ob-row">
+        <span class="down">${fmt(r.price)}</span>
+        <span>${fmtN(r.open_quantity)}</span>
+        <span style="color:var(--text3)">${r.num_orders} orders</span>
+      </div>`).join(''):'<div class="empty">No sell orders</div>';
+  }catch(e){
+    $('obBuy').innerHTML='<div class="empty" style="color:var(--red)">Backend offline</div>';
+    $('obSell').innerHTML='<div class="empty" style="color:var(--red)">Backend offline</div>';
+  }
+}
+
+// ── PLACE ORDER ───────────────────────────────────────────────
+function calcTotal(){
+  const t=parseFloat($('poQty')?$('poQty').value||0:0)*parseFloat($('poPrice')?$('poPrice').value||0:0);
+  if($('poTotal')) $('poTotal').textContent=fmt(t);
+}
+async function submitOrder(){
+  const stock_id=parseInt($('poStock').value),order_type=$('poType').value,
+        quantity=parseInt($('poQty').value),price=parseFloat($('poPrice').value);
+  if(!stock_id){sc('orderAlrt','err','Select a stock first.');return}
+  if(!quantity||!price||quantity<1){sc('orderAlrt','err','Enter valid quantity and price.');return}
+  try{
+    const d=await api('/trader/place-order',{method:'POST',body:JSON.stringify({stock_id,order_type,quantity,price})});
+    sc('orderAlrt','ok',`✓ Order #${d.order_id} submitted. Matching engine ran — check My Orders for status.`);
+  }catch(e){
+    sc('orderAlrt','err',e.message||'Order failed.');
+  }
+}
+
+// ── MY ORDERS ─────────────────────────────────────────────────
+async function loadMyOrders(){
+  const body=$('myOrdersBody');
+  try{
+    const d=await api('/trader/orders');
+    const rows=d.data||[];
+    body.innerHTML=rows.length?rows.map(o=>{
+      const sc_map={COMPLETED:'comp',PENDING:'pend',CANCELLED:'canc',PARTIAL:'part'};
+      const cancelBtn=(['PENDING','PARTIAL'].includes(o.status_name))?
+        `<button class="btn btn-red btn-sm" onclick="cancelOrd(${o.order_id})">Cancel</button>`:'';
+      return `<tr>
+        <td class="mono" style="color:var(--text3)">#${o.order_id}</td>
+        <td><strong>${o.symbol}</strong></td>
+        <td>${bdg(o.order_type==='BUY'?'buy':'sell',o.order_type)}</td>
+        <td>${o.quantity}</td>
+        <td class="mono ${o.filled_qty>0?'up':''}">${o.filled_qty}</td>
+        <td class="mono" style="color:var(--text3)">${o.remaining_qty}</td>
+        <td class="mono">${fmt(o.price)}</td>
+        <td class="mono" style="color:var(--gold)">${fmt(o.filled_value)}</td>
+        <td>${bdg(sc_map[o.status_name]||'canc',o.status_name)}</td>
+        <td style="color:var(--text3);font-size:.72rem">${fmtD(o.order_time)}</td>
+        <td>${cancelBtn}</td>
+      </tr>`;
+    }).join(''):'<tr><td colspan="11" class="empty">No orders yet</td></tr>';
+  }catch(e){body.innerHTML='<tr><td colspan="11" class="empty" style="color:var(--red)">⚠ Backend not connected</td></tr>'}
+}
+
+async function cancelOrd(oid){
+  try{
+    const d=await api('/trader/cancel-order',{method:'POST',body:JSON.stringify({order_id:oid})});
+    alert(d.message); loadMyOrders();
+  }catch(e){alert('Error: '+e.message)}
+}
+
+// ── PORTFOLIO ─────────────────────────────────────────────────
+// FIX: Now renders unrealised_pnl and pnl_pct columns returned by user_portfolio_view.
+async function loadPortfolio(){
+  const body=$('portBody'),cards=$('portCards');
+  try{
+    const d=await api('/trader/portfolio');
+    const rows=d.data||[];
+    const totalVal=rows.reduce((s,r)=>s+parseFloat(r.market_value||0),0);
+    const totalPnl=rows.reduce((s,r)=>s+parseFloat(r.unrealised_pnl||0),0);
+    cards.innerHTML=`
+      <div class="card"><div class="cl">Holdings</div><div class="cv">${rows.length}</div></div>
+      <div class="card"><div class="cl">Total Market Value</div><div class="cv gold">${fmt(totalVal)}</div></div>
+      <div class="card"><div class="cl">Unrealised P&amp;L</div><div class="cv ${totalPnl>=0?'green':'red'}">${totalPnl>=0?'+':''}${fmt(totalPnl)}</div></div>`;
+    body.innerHTML=rows.length?rows.map(r=>`<tr>
+      <td><strong class="mono">${r.symbol}</strong></td>
+      <td>${r.stock_name}</td>
+      <td>${r.quantity}</td>
+      <td class="mono">${fmt(r.avg_buy_price||0)}</td>
+      <td class="mono">${fmt(r.current_price||0)}</td>
+      <td class="mono" style="color:var(--gold)">${fmt(r.market_value||0)}</td>
+      <td>${pnl(r.unrealised_pnl)}</td>
+      <td>${pnlPct(r.pnl_pct)}</td>
+    </tr>`).join(''):'<tr><td colspan="8" class="empty">No holdings yet — place a BUY order first</td></tr>';
+  }catch(e){body.innerHTML='<tr><td colspan="8" class="empty" style="color:var(--red)">⚠ Backend not connected</td></tr>'}
+}
+
+// ── WATCHLIST ─────────────────────────────────────────────────
+async function loadWatchlist(){
+  const body=$('wlBody');
+  try{
+    const d=await api('/trader/watchlist');
+    const rows=d.data||[];
+    body.innerHTML=rows.length?rows.map(r=>`<tr>
+      <td><strong class="mono">${r.symbol}</strong></td>
+      <td>${r.stock_name}</td>
+      <td style="color:var(--text3)">${fmtD(r.added_date)}</td>
+      <td class="mono" style="color:var(--teal)">${r.latest_price!==null?fmt(r.latest_price):'—'}</td>
+      <td><button class="btn btn-red btn-sm" onclick="rmWl(${r.stock_id})">Remove</button></td>
+    </tr>`).join(''):'<tr><td colspan="5" class="empty">Watchlist empty</td></tr>';
+  }catch(e){body.innerHTML='<tr><td colspan="5" class="empty" style="color:var(--red)">⚠ Backend not connected</td></tr>'}
+}
+
+// ── ADD TO WATCHLIST ──────────────────────────────────────────
+async function addToWatchlist(){
+  const sid = parseInt($('wlAddStock').value);
+  if(!sid){sc('wlAlrt','err','Select a stock first.');return}
+  try{
+    await api('/trader/watchlist', {method:'POST', body:JSON.stringify({stock_id:sid})});
+    sc('wlAlrt','ok','Stock added to watchlist.');
+    loadWatchlist();
+  }catch(e){ sc('wlAlrt','err', e.message); }
+}
+
+async function rmWl(sid){
+  try{await api(`/trader/watchlist/${sid}`,{method:'DELETE'});loadWatchlist();}
+  catch(e){alert(e.message)}
+}
+
+// ── WALLET ────────────────────────────────────────────────────
+async function loadWallet(){
+  const body=$('walBody'),cards=$('walCards');
+  try{
+    const d=await api('/trader/wallet');
+    const rows=d.data||[];
+    const bal = rows.length ? rows[0].current_balance : 0;
+    const txCount = rows.filter(r=>r.transaction_id).length;
+    cards.innerHTML=`
+      <div class="card"><div class="cl">Current Balance</div><div class="cv gold">${fmt(bal)}</div></div>
+      <div class="card"><div class="cl">Transactions</div><div class="cv">${txCount}</div></div>`;
+    const txRows = rows.filter(r => r.transaction_id !== null && r.transaction_id !== undefined);
+    body.innerHTML=txRows.length?txRows.map(r=>`<tr>
+      <td class="mono" style="color:var(--text3)">#${r.transaction_id}</td>
+      <td class="mono ${parseFloat(r.amount||0)>=0?'up':'down'}">${parseFloat(r.amount||0)>=0?'+':''}${fmt(Math.abs(r.amount||0))}</td>
+      <td><strong>${r.symbol||'—'}</strong></td>
+      <td>${r.order_type?bdg(r.order_type==='BUY'?'buy':'sell',r.order_type):'—'}</td>
+      <td style="color:var(--text3)">${fmtD(r.transaction_date)}</td>
+      <td>${bdg({SUCCESS:'comp',FAILED:'sell',REFUNDED:'pend'}[r.transaction_status]||'canc',r.transaction_status||'—')}</td>
+    </tr>`).join(''):'<tr><td colspan="6" class="empty">No transactions yet — deposit funds to start</td></tr>';
+  }catch(e){body.innerHTML='<tr><td colspan="6" class="empty" style="color:var(--red)">⚠ Backend not connected</td></tr>'}
+}
+
+// ── GAINERS & LOSERS (NEW) ───────────────────────────────────
+async function loadGainersLosers(){
+  const n=$('glN').value;
+  const renderRows=(rows,isGainer)=>rows.length?rows.map(r=>{
+    const ch=parseFloat(r.pct_change||0);
+    const absCh=parseFloat(r.abs_change||0);
+    const cls=isGainer?'up':'down';
+    return `<tr>
+      <td><strong class="mono" style="color:var(--teal)">${r.symbol}</strong></td>
+      <td style="font-size:.75rem">${r.stock_name}</td>
+      <td class="mono">${fmt(r.latest_price||0)}</td>
+      <td class="mono ${cls}">${absCh>=0?'+':''}${fmt(Math.abs(absCh))}</td>
+      <td class="mono ${cls}">${ch>=0?'▲':'▼'} ${Math.abs(ch).toFixed(2)}%</td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="5" class="empty">No data</td></tr>';
+
+  try{
+    const d=await api(`/analyst/gainers-losers?n=${n}`);
+    $('glGainers').innerHTML=renderRows(d.gainers||[], true);
+    $('glLosers').innerHTML=renderRows(d.losers||[], false);
+  }catch(e){
+    const errRow='<tr><td colspan="5" class="empty" style="color:var(--red)">⚠ Backend not connected</td></tr>';
+    $('glGainers').innerHTML=errRow; $('glLosers').innerHTML=errRow;
+  }
+}
+
+// ── TRADER P&L (NEW) ─────────────────────────────────────────
+async function loadPnl(){
+  const body=$('pnlBody');
+  try{
+    const d=await api('/analyst/pnl');
+    body.innerHTML=(d.data||[]).length?(d.data||[]).map(r=>`<tr>
+      <td><strong>${r.trader_name}</strong></td>
+      <td class="mono" style="color:var(--teal)">${fmt(r.portfolio_value||0)}</td>
+      <td>${pnl(r.unrealised_pnl)}</td>
+      <td>${pnl(r.realised_pnl)}</td>
+      <td class="mono" style="color:var(--text2)">${r.total_trades||0}</td>
+    </tr>`).join(''):'<tr><td colspan="5" class="empty">No P&amp;L data yet</td></tr>';
+  }catch(e){body.innerHTML='<tr><td colspan="5" class="empty" style="color:var(--red)">⚠ Backend not connected</td></tr>'}
+}
+
+// ── TOP STOCKS ────────────────────────────────────────────────
+async function loadTop(){
+  const n=$('topN').value, body=$('topBody');
+  try{
+    const d=await api(`/analyst/top-stocks?n=${n}`);
+    body.innerHTML=(d.data||[]).map((s,i)=>`<tr>
+      <td style="color:var(--gold);font-family:var(--mono)">${i+1}</td>
+      <td><strong class="mono">${s.symbol}</strong></td>
+      <td>${s.stock_name}</td>
+      <td class="mono">${s.total_trades}</td>
+      <td class="mono">${fmtN(s.total_volume_shares||0)}</td>
+      <td class="mono" style="color:var(--teal)">${fmt(s.total_volume_usd||0)}</td>
+    </tr>`).join('');
+  }catch(e){body.innerHTML='<tr><td colspan="6" class="empty" style="color:var(--red)">⚠ Backend not connected</td></tr>'}
+}
+
+// ── EXCHANGES ─────────────────────────────────────────────────
+async function loadExchanges(){
+  const body=$('exchBody');
+  try{
+    const d=await api('/analyst/exchanges');
+    body.innerHTML=(d.data||[]).map(e=>`<tr>
+      <td><strong>${e.exchange_name}</strong></td><td>${e.country}</td>
+      <td>${e.num_stocks}</td><td>${e.num_trades}</td>
+      <td class="mono" style="color:var(--teal)">${fmt(e.total_traded)}</td>
+    </tr>`).join('');
+  }catch(e){body.innerHTML='<tr><td colspan="5" class="empty" style="color:var(--red)">⚠ Backend not connected</td></tr>'}
+}
+
+// ── ADD STOCK (Admin) ─────────────────────────────────────────
+async function doAddStock(){
+  const symbol=$('asSymbol').value.trim().toUpperCase();
+  const name=$('asName').value.trim();
+  const exchangeId=parseInt($('asExchange').value);
+  const price=parseFloat($('asPrice').value);
+  const sharesRaw=$('asShares').value.trim();
+  const total_shares=sharesRaw?parseInt(sharesRaw):undefined;
+
+  if(!symbol||!name){sc('addStockAlrt','err','Symbol and stock name are required.');return}
+  if(!price||price<=0){sc('addStockAlrt','err','Enter a valid positive price.');return}
+  if(!exchangeId||exchangeId<1){sc('addStockAlrt','err','Enter a valid exchange ID.');return}
+
+  const payload={symbol,stock_name:name,exchange_id:exchangeId,price};
+  if(total_shares) payload.total_shares=total_shares;
+
+  try{
+    const d=await api('/admin/add-stock',{method:'POST',body:JSON.stringify(payload)});
+    sc('addStockAlrt','ok',`✓ Stock ${d.symbol} (ID: ${d.stock_id}) added successfully.`);
+    $('addStockResult').style.display='block';
+    $('addStockResultBody').innerHTML=`
+      <strong>Stock ID:</strong> ${d.stock_id}<br>
+      <strong>Symbol:</strong> ${d.symbol}<br>
+      <strong>Name:</strong> ${d.stock_name}<br>
+      <strong>Total Shares:</strong> ${Number(d.total_shares).toLocaleString()}<br>
+      <strong>Note:</strong> ${d.note||''}`;
+    // Refresh dropdowns so new stock appears immediately
+    loadStockDropdowns();
+  }catch(e){sc('addStockAlrt','err',e.message||'Add stock failed.')}
+}
+
+// ── USER SUMMARY ──────────────────────────────────────────────
+async function loadSum(){
+  const uid=$('sumUid').value, cards=$('sumCards');
+  try{
+    const d=await api(`/admin/user-summary/${uid}`);
+    const u=(d.data||[])[0]||{};
+    cards.innerHTML=`
+      <div class="card"><div class="cl">Name</div><div class="cv sm">${u.user_name||'—'}</div></div>
+      <div class="card"><div class="cl">Balance</div><div class="cv gold">${fmt(u.wallet_balance||0)}</div></div>
+      <div class="card"><div class="cl">Portfolio Value</div><div class="cv">${fmt(u.portfolio_value||0)}</div></div>
+      <div class="card"><div class="cl">Total Orders</div><div class="cv">${u.total_orders||0}</div></div>
+      <div class="card"><div class="cl">Completed Orders</div><div class="cv green">${u.completed_orders||0}</div></div>`;
+  }catch(e){cards.innerHTML='<div style="color:var(--red);padding:1rem">⚠ Backend not connected</div>'}
+}
+
+// ── ALL USERS ─────────────────────────────────────────────────
+async function loadAllUsers(){
+  const body=$('allUsersBody');
+  try{
+    const d=await api('/admin/all-users');
+    body.innerHTML=(d.data||[]).map(u=>`<tr>
+      <td class="mono" style="color:var(--text3)">${u.user_id}</td>
+      <td><strong>${u.name}</strong></td>
+      <td class="mono" style="font-size:.72rem">${u.email}</td>
+      <td>${bdg({admin:'comp',trader:'buy',analyst:'gold'}[u.user_role]||'canc',u.user_role)}</td>
+      <td style="color:var(--text3)">${u.phone||'—'}</td>
+    </tr>`).join('');
+  }catch(e){body.innerHTML='<tr><td colspan="5" class="empty" style="color:var(--red)">⚠ Backend not connected</td></tr>'}
+}
+
+// ── ALL ORDERS ────────────────────────────────────────────────
+async function loadAllOrders(){
+  const body=$('allOrdersBody');
+  try{
+    const d=await api('/admin/all-orders');
+    const sc_map={COMPLETED:'comp',PENDING:'pend',CANCELLED:'canc',PARTIAL:'part'};
+    body.innerHTML=(d.data||[]).map(o=>`<tr>
+      <td class="mono" style="color:var(--text3)">#${o.order_id}</td>
+      <td>${o.user_name}</td>
+      <td><strong>${o.symbol}</strong></td>
+      <td>${bdg(o.order_type==='BUY'?'buy':'sell',o.order_type)}</td>
+      <td>${o.quantity}</td>
+      <td class="mono ${o.filled_qty>0?'up':''}">${o.filled_qty}</td>
+      <td class="mono">${fmt(o.price)}</td>
+      <td>${bdg(sc_map[o.status_name]||'canc',o.status_name)}</td>
+      <td style="color:var(--text3);font-size:.72rem">${fmtD(o.order_time)}</td>
+    </tr>`).join('');
+  }catch(e){body.innerHTML='<tr><td colspan="9" class="empty" style="color:var(--red)">⚠ Backend not connected</td></tr>'}
+}
+
+// ── DEPOSIT ───────────────────────────────────────────────────
+const showModal=id=>{$(id).classList.add('open')};
+const closeModal=id=>{$(id).classList.remove('open')};
+
+async function doDeposit(){
+  const amt=parseFloat($('depAmt').value);
+  if(!amt||amt<=0){sc('depAlrt','err','Enter a valid amount.');return}
+  try{
+    const d=await api('/trader/deposit',{method:'POST',body:JSON.stringify({amount:amt})});
+    sc('depAlrt','ok',`✓ Deposited ${fmt(amt)}. New balance: ${fmt(d.new_balance)}`);
+    setTimeout(()=>closeModal('depositModal'),1500);
+  }catch(e){sc('depAlrt','err',e.message)}
+}
+
+// ── OPEN STOCK DETAIL (click from market overview) ───────────
+// FIX: Navigates to Price History and selects the clicked stock.
+//      The phStock dropdown no longer has AAPL, so we dynamically
+//      add the option if it doesn't exist (should not happen since
+//      AAPL is removed from the DB too).
+function openStockDetail(stockId, symbol) {
+  const phStock = $('phStock');
+  if (phStock) {
+    let found = false;
+    for (let opt of phStock.options) {
+      if (parseInt(opt.value) === stockId) {
+        phStock.value = opt.value;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      const newOpt = document.createElement('option');
+      newOpt.value = stockId;
+      newOpt.textContent = symbol;
+      phStock.appendChild(newOpt);
+      phStock.value = stockId;
+    }
+  }
+  const pricesNav = Array.from(document.querySelectorAll('.ni'))
+    .find(el => el.textContent.trim().includes('Price History'));
+  go('prices', pricesNav);
+}
+
+// init
+calcTotal();
+drawFallbackChart();
+</script>
+</body>
+</html>
